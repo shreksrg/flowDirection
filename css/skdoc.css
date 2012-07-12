@@ -21,6 +21,11 @@ p {
     line-height: 21px;
 }
 
+p.role-statistics {
+    font-size: 12px;
+    color: #2c2c2c;
+}
+
 p.role-name {
     font-size: 14px;
     font-weight: bold;
