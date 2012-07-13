@@ -1,4 +1,6 @@
 SKL78xxStart = function (params) {
+
+
     this.title = params.title;
     this.url = params.url;
     this.connodes = params.connodes;
@@ -9,6 +11,11 @@ SKL78xxStart = function (params) {
     if (!this.url) {
         this.url = "img/btn-roleup.png";
     }
+
+    this.roleID = null;
+    this.relateRoles = new Array();
+    this.roleDOM = null;
+
     Node.call(this);
     this.inputPort = null;
     this.outputPort = null;
@@ -28,7 +35,12 @@ SKL78xxStart.prototype.type = "SKL78xxStart";
 SKL78xxStart.prototype.createHTMLElement = function () {
 
     var item = Node.prototype.createHTMLElement.call(this);
+    var RoleID = item.getAttribute('id');
+    var relateRoles = this.relateRoles;
+    this.roleID = RoleID;
+
     this.img = document.createElement("img");
+    this.img.setAttribute("roleBG", "grey");
     this.img.style.position = "absolute";
     this.img.style.left = "0px";
     this.img.style.top = "0px";
@@ -49,6 +61,19 @@ SKL78xxStart.prototype.createHTMLElement = function () {
 
     item.style.left = this.x + "px";
     item.style.top = this.y + "px";
+
+    this.roleDOM = item;
+
+
+    /* item.addEventListener('click', function () {
+     alert(relateRoles.length);
+     for (var i in relateRoles) {
+     alert(relateRoles[i].roleID);
+     $('#' + relateRoles[i].roleID).find('img[roleBG]').attr('src', 'img/bgRole_high.png')
+     }
+     // $('img[roleBG]').attr('src', 'img/bgRole_high.png')
+
+     })*/
     return item;
 
 
@@ -145,6 +170,57 @@ SKL78xxStart.prototype.setWorkflow = function (_4422) {
     }
 };
 
+SKL78xxStart.prototype.setRelateRoles = function (array) {
+    return this.relateRoles = array
+}
+
+/**
+ * 设置关联板块高亮
+ */
+
+var hashConnLines = new Array();
+
+SKL78xxStart.prototype.onClickNode = function (arrNode, arrHashline, rgb) {
+    var dom = this.roleDOM;
+    $(dom).click(function () {
+        $('img[roleBG]').attr('src', 'img/btn-roleup.png');
+        $(this).find('img[roleBG]').attr('src', 'img/bgRole_high.png');
+        for (var i in arrNode) {
+            $('#' + arrNode[i].roleID).find('img[roleBG]').attr('src', 'img/bgRole_high.png')
+        }
+
+        // 清除绿色线条为灰色
+        for (var x in hashConnLines) {
+            hashConnLines[x].connectObj.setColor(new Color(180, 180, 180));
+            //createConnectLine(hashConnLines[x].node, hashConnLines[x].port)
+        }
+
+        for (var y in arrHashline) {
+            var i = arrHashline[y]
+            hashConnLines[i].connectObj.setColor(new Color(rgb[0], rgb[1], rgb[2]));
+          //  hashConnLines[i].connectObj.setColor(new Color(55, 182, 5));
+        }
+    })
+
+}
+
+
+SKL78xxNode = function (params) {
+    this.connodes = params.connodes;
+    this.outputPort = null;
+    Node.call(this);
+
+    this.setDimension(0, 0);
+    // this.setColor(new Color(180, 180, 180));
+    this.setColor(null);
+}
+
+SKL78xxNode.prototype = new Node();
+SKL78xxNode.prototype.setWorkflow = function (_4422) {
+
+    SKL78xxStart.prototype.setWorkflow.call(this, _4422)
+    //  Node.prototype.setWorkflow.call(this, _4422);
+}
 
 SKL78xxEnd = function () {
     Node.call(this);
@@ -172,10 +248,10 @@ SKL78xxOval = function () {
     Oval.call(this);
     //  Node.call(this);
     this.inputPort = null;
-
+    this.setLineWidth(0);
     this.setColor(new Color(255, 128, 255));
     this.setBackgroundColor(new Color(245, 245, 255));
-    this.setDimension(0, 0);
+    this.setDimension(50, 50);
 };
 SKL78xxOval.prototype = new Oval;
 SKL78xxOval.prototype.type = "SKL78xxOval";
@@ -231,18 +307,38 @@ PolygonConnectionDecorator.prototype = new ConnectionDecorator;
 PolygonConnectionDecorator.prototype.paint = function (g) {
     g.setColor(new Color(128, 255, 255));
     //  g.fillPolygon([0, 15, 30, 15, 3], [0, 5, 0, -5, 0]);
-    g.fillPolygon([0, 10, 10], [0, 5, -5]);
+    g.fillPolygon([-2, 10, 10], [0, 5, -5]);
     g.setColor(new Color(128, 128, 255));
     g.setStroke(1);
     // g.drawPolygon([0, 15, 30, 15, 3], [0, 5, 0, -5, 0]);
-    g.drawPolygon([0, 10, 10], [0, 5, -5]);
+    g.drawPolygon([-2, 10, 10], [0, 5, -5]);
 };
 
-var c = new Connection();
-function createConnectLine(n, l) {
-    c = new Connection();
+
+/**
+ * 创建连接线
+ */
+
+//var c = new Connection();
+function createConnectLine(n, l, color) {
+
+    if (!color) {
+        var color = [];
+        color[0] = 180;
+        color[1] = 180;
+        color[2] = 180;
+    }
+
+    var c = new Connection();
     c.setSource(n[0].getPort(l[0]));
     c.setTarget(n[1].getPort(l[1]));
+    c.setLineWidth(2);
+    c.setColor(new Color(color[0], color[1], color[2]));
     c.setTargetDecorator(new PolygonConnectionDecorator());
     workflow.addFigure(c);
+    return c;
 }
+
+
+
+
