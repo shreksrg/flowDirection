@@ -4,7 +4,8 @@ SKL78xxStart = function (params) {
     this.title = params.title;
     this.url = params.url;
     this.connodes = params.connodes;
-    this.counterLab = params.counterLab
+    this.counterLab = params.counterLab;
+    this.rolename = params.rolename;
     if (!this.counterLab) {
         this.counterLab = "销售量：0"
     }
@@ -51,7 +52,7 @@ SKL78xxStart.prototype.createHTMLElement = function () {
     this.d.style.position = "absolute";
     this.d.style.left = "0px";
     this.d.style.top = "0px";
-    this.d.innerHTML = '<p class="role-name">' + this.title + '</p><p class="role-statistics">' + this.counterLab + '</p>';
+    this.d.innerHTML = '<p class="role-name">' + this.title + '</p><p class="role-statistics" role-name="' + this.rolename + '">' + this.counterLab + '</p>';
     this.d.style.textAlign = "center";
     this.d.style.paddingTop = "12px";
     this.d.style.overflow = "hidden";
@@ -151,6 +152,24 @@ SKL78xxStart.prototype.setWorkflow = function (_4422) {
                     this.op_tc.setBackgroundColor(new Color(245, 115, 115));
                     this.addPort(this.op_tc, this.width / 2, 0);
                     break;
+                case "tc-h1":
+                    this.op_tch1 = new OutputPort();
+                    this.op_tch1.setMaxFanOut(5);
+                    this.op_tch1.setWorkflow(_4422);
+                    this.op_tch1.setHideIfConnected(true);
+                    this.op_tch1.setName("op_tch1");
+                    this.op_tch1.setBackgroundColor(new Color(245, 115, 115));
+                    this.addPort(this.op_tch1, this.width / 4, 0);
+                    break;
+                case "tc-h2":
+                    this.op_tch2 = new OutputPort();
+                    this.op_tch2.setMaxFanOut(5);
+                    this.op_tch2.setWorkflow(_4422);
+                    this.op_tch2.setHideIfConnected(true);
+                    this.op_tch2.setName("op_tch2");
+                    this.op_tch2.setBackgroundColor(new Color(245, 115, 115));
+                    this.addPort(this.op_tch2, this.width / 4*3, 0);
+                    break;
                 case "bc":
                     this.op_bc = new OutputPort();
                     this.op_bc.setMaxFanOut(5);
@@ -175,12 +194,11 @@ SKL78xxStart.prototype.setRelateRoles = function (array) {
 }
 
 /**
- * 设置关联板块高亮
+ * 点击节点事件 - [设置关联板块高亮]
  */
 
 var hashConnLines = new Array();
-
-SKL78xxStart.prototype.onClickNode = function (arrNode, arrHashline, rgb) {
+SKL78xxStart.prototype.onClickNode = function (arrNode, arrHashline, rgb, ajaxData) {
     var dom = this.roleDOM;
     $(dom).click(function () {
         $('img[roleBG]').attr('src', 'img/btn-roleup.png');
@@ -189,17 +207,39 @@ SKL78xxStart.prototype.onClickNode = function (arrNode, arrHashline, rgb) {
             $('#' + arrNode[i].roleID).find('img[roleBG]').attr('src', 'img/bgRole_high.png')
         }
 
-        // 清除绿色线条为灰色
-        for (var x in hashConnLines) {
-            hashConnLines[x].connectObj.setColor(new Color(180, 180, 180));
-            //createConnectLine(hashConnLines[x].node, hashConnLines[x].port)
+        if (ajaxData.data.roles[0] == "0级") {
+            setConnlineColor([0, 1, 2],[104, 5, 240]);
+            setConnlineColor([10, 11, 12, 13, 60, 61, 62, 63, 64],[55, 182, 5]);
+            setConnlineColor([30, 31, 32, 60, 61, 62, 63, 64],[240, 5, 16]);
+            setConnlineColor([40, 41, 60, 61, 62, 63, 64],[240, 198, 5]);
+            setConnlineColor([43, 60, 61, 62, 63, 64],[240, 198, 5]);
+        }else{
+            // 清除绿色线条为灰色
+            for (var x in hashConnLines) {
+                hashConnLines[x].connectObj.setColor(new Color(180, 180, 180));
+            }
+
+            setConnlineColor(arrHashline,rgb);
+
+           /* for (var y in arrHashline) {
+                var i = arrHashline[y]
+                hashConnLines[i].connectObj.setColor(new Color(rgb[0], rgb[1], rgb[2]));
+            }*/
         }
 
-        for (var y in arrHashline) {
-            var i = arrHashline[y]
-            hashConnLines[i].connectObj.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-          //  hashConnLines[i].connectObj.setColor(new Color(55, 182, 5));
-        }
+        // 请求服务端数据处理
+        $.ajax({
+            type:"post",
+            url:"http://localhost/ordermobi/assets/www/draw2D/flow_direction/www/index.php/skview/getReccount",
+            dataType:'json',
+            data:ajaxData.data,
+            success:function (r) {
+                ajaxData.callback(r);
+            },
+            error:function () {
+                alert("request failure");
+            }
+        });
     })
 
 }
@@ -221,6 +261,45 @@ SKL78xxNode.prototype.setWorkflow = function (_4422) {
     SKL78xxStart.prototype.setWorkflow.call(this, _4422)
     //  Node.prototype.setWorkflow.call(this, _4422);
 }
+
+
+/*SKL78xxLabel = function (msg) {
+ this.msg = msg;
+ this.outputPort = null;
+ Label.call(this);
+
+
+ // this.setDimension(0, 0);
+ // this.setColor(new Color(180, 180, 180));
+ //this.setColor(null);
+ }
+
+ SKL78xxLabel.prototype  = new Label;
+ SKL78xxLabel.prototype.createHTMLElement = function(){
+ var item = Node.prototype.createHTMLElement.call(this);
+ }*/
+/*SKL78xxLabel.prototype.type = "SKL78xxLabel";
+ SKL78xxLabel.prototype.createHTMLElement = function(){
+ var item = Label.prototype.createHTMLElement.call(this);
+ this.d = document.createElement("div");
+ this.d.setAttribute("node-role", "distribution");
+ this.d.style.position = "absolute";
+ this.d.style.left = "0px";
+ this.d.style.top = "0px";
+ this.d.innerHTML = this.message;
+ this.d.style.textAlign = "center";
+ this.d.style.paddingTop = "12px";
+ this.d.style.overflow = "hidden";
+ //this.d.style.background = "url(btn-role-style1.png) no-repeat";
+ item.appendChild(this.d);
+
+ }
+ SKL78xxLabel.prototype.setWorkflow = function (_4422) {
+
+ Label.prototype.setWorkflow.call(this, _4422)
+ //  Node.prototype.setWorkflow.call(this, _4422);
+ }*/
+
 
 SKL78xxEnd = function () {
     Node.call(this);
@@ -339,6 +418,36 @@ function createConnectLine(n, l, color) {
     return c;
 }
 
+/**
+ * 创建百分比标签
+ */
 
+function createNodeLabel(name, text, coordsys) {
+    var nodeLabel;
+    nodeLabel = new Label();
+    nodeLabel.setStyledText('<span role-percent="' + name + '">' + text + '</span>');
+    workflow.addFigure(nodeLabel, coordsys[0], coordsys[1]);
+}
 
+/**
+ * 数字型四舍五入
+ */
 
+function roundDecimal(v, r) {
+    var num = v.toString().indexOf('.') + 1;
+    var str = v.toString().substring(num, v.length);
+    if (str.length > r)
+        return v.toFixed(r);
+    else
+        return v;
+}
+
+/**
+ * 设置线条颜色
+ */
+
+function setConnlineColor(arr, rgb) {
+    for (var y in arr) {
+        hashConnLines[arr[y]].connectObj.setColor(new Color(rgb[0], rgb[1], rgb[2]));
+    }
+}

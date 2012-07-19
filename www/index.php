@@ -1,10 +1,6 @@
 <?php
 
-$domain =  $_SERVER['SERVER_NAME'];
-if($domain != 'demox.paliie.com'){
-	
-	exit();
-}
+
 
 /*
  *---------------------------------------------------------------

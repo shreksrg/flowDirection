@@ -19,7 +19,7 @@
 |	['dbdriver'] The database type. ie: mysql.  Currently supported:
 				 mysql, mysqli, postgre, odbc, mssql, sqlite, oci8
 |	['dbprefix'] You can add an optional prefix, which will be added
-|				 to the table name when using the  Active Record class
+|				 to the table name when using the Active Record class
 |	['pconnect'] TRUE/FALSE - Whether to use a persistent connection
 |	['db_debug'] TRUE/FALSE - Whether database errors should be displayed.
 |	['cache_on'] TRUE/FALSE - Enables/disables query caching
@@ -48,15 +48,15 @@ $active_group = 'qa';
 $active_record = TRUE;
 
 $db['qa']['hostname'] = 'localhost';
-$db['qa']['username'] = 'paliie_web1';
-$db['qa']['password'] = 'fxW3wp86R3s3WhYb';
-$db['qa']['database'] = 'paliie_qa';
+$db['qa']['username'] = 'root';
+$db['qa']['password'] = '123';
+$db['qa']['database'] = 'agilesc';
 $db['qa']['dbdriver'] = 'mysql';
-$db['qa']['dbprefix'] = 'paliie_';
+$db['qa']['dbprefix'] = '';
 $db['qa']['pconnect'] = TRUE;
 $db['qa']['db_debug'] = TRUE;
 $db['qa']['cache_on'] = FALSE;
-$db['qa']['cachedir'] = '';
+$db['qa']['cachedir'] = 'agilesc_';
 $db['qa']['char_set'] = 'utf8';
 $db['qa']['dbcollat'] = 'utf8_general_ci';
 $db['qa']['swap_pre'] = '';

@@ -80,7 +80,7 @@ $autoload['helper'] = array('url','common');
 |
 */
 
-$autoload['config'] = array('paliie');
+$autoload['config'] = array();
 
 
 /*

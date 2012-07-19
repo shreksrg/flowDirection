@@ -38,7 +38,7 @@
 |
 */
 
-$route['default_controller'] = "browse";
+$route['default_controller'] = "skview";
 $route['404_override'] = '';
 
 
